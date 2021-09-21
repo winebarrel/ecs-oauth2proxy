@@ -1,0 +1,108 @@
+{
+  "containerDefinitions": [
+    {
+      "cpu": 0,
+      "essential": true,
+      "image": "822997939312.dkr.ecr.ap-northeast-1.amazonaws.com/nginx:latest",
+      "mountPoints": [],
+      "name": "nginx",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/o2p-2-nginx",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    },
+    {
+      "cpu": 0,
+      "essential": true,
+      "image": "quay.io/oauth2-proxy/oauth2-proxy:latest",
+      "mountPoints": [],
+      "name": "oauth2-proxy",
+      "portMappings": [
+        {
+          "containerPort": 4180,
+          "hostPort": 4180,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "OAUTH2_PROXY_HTTP_ADDRESS", "value": "0.0.0.0:4180" },
+        { "name": "OAUTH2_PROXY_PROVIDER", "value": "google" },
+        {
+          "name": "OAUTH2_PROXY_REDIRECT_URL",
+          "value": "https://hello2.winebarrel.work/oauth2/callback"
+        },
+        { "name": "OAUTH2_PROXY_EMAIL_DOMAINS", "value": "winebarrel.jp" }
+      ],
+      "secrets": [
+        {
+          "name": "OAUTH2_PROXY_CLIENT_ID",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-1:822997939312:secret:hello-rwlLyF:OAUTH2_PROXY_CLIENT_ID::"
+        },
+        {
+          "name": "OAUTH2_PROXY_CLIENT_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-1:822997939312:secret:hello-rwlLyF:OAUTH2_PROXY_CLIENT_SECRET::"
+        },
+        {
+          "name": "OAUTH2_PROXY_COOKIE_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-1:822997939312:secret:hello-rwlLyF:OAUTH2_PROXY_COOKIE_SECRET::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/o2p-2-oauth2-proxy",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    },
+    {
+      "cpu": 0,
+      "essential": true,
+      "image": "ruby:2.7",
+      "mountPoints": [],
+      "name": "app",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "command": [
+        "ruby",
+        "-rwebrick",
+        "-e",
+        "WEBrick::HTTPServer.new(Port: 3000).tap {|s| s.mount_proc(?/) {|_, r| r.body = :OK2.to_s } }.start"
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/app",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "cpu": "256",
+  "executionRoleArn": "arn:aws:iam::822997939312:role/ecsTaskExecutionRole",
+  "family": "oauth2-proxy",
+  "memory": "512",
+  "networkMode": "awsvpc",
+  "placementConstraints": [],
+  "requiresCompatibilities": ["FARGATE"],
+  "taskRoleArn": "arn:aws:iam::822997939312:role/admin",
+  "volumes": []
+}
