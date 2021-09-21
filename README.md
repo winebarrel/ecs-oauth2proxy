@@ -1,3 +1,3 @@
 # ecs-oauth2proxy
 
-![Doc - 2021-09-21 - 17-36](https://user-images.githubusercontent.com/117768/134140379-c2707d69-1eda-4caa-ad1d-918f1d021ffc.jpg)
+![Doc - 2021-09-21 - 18-02](https://user-images.githubusercontent.com/117768/134143321-eeb75213-c29e-40f7-b5fe-55c241dfa8ae.jpg)
